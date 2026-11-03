@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EditPic: padronize imagens para sites e redes sociais, localmente e sem complicação.">
+  <meta name="theme-color" content="#101725">
+  <title>EditPic — Editor de imagens</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="src/image-utils.js"></script>
+  <script defer src="src/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="brand" aria-label="EditPic">
+        <span class="brand-icon" aria-hidden="true">E</span>
+        <span>EditPic</span>
+      </div>
+      <div class="topbar-right"><span class="version">v0.1.0 — MVP</span><span class="top-divider"></span><span class="secure"><span aria-hidden="true">●</span> Processamento local</span></div>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">SEU ESTÚDIO DE IMAGENS</p>
+      <h1 id="page-title">Imagens no tamanho certo. <span>Sem complicação.</span></h1>
+      <p class="intro-description">Importe uma imagem, escolha a proporção e exporte pronta para o seu projeto. Sem conta, sem API, sem enviar fotos para um servidor.</p>
+    </section>
+    <div class="workspace">
+      <aside class="sidebar" aria-label="Configurações de imagem">
+        <section class="panel">
+          <div class="section-heading"><span class="step">01</span><h2>Imagem de origem</h2></div>
+          <label class="dropzone" id="dropzone" for="file-input">
+            <input class="visually-hidden" id="file-input" type="file" accept="image/jpeg,image/png,image/webp">
+            <span class="upload-symbol" aria-hidden="true">↑</span>
+            <strong>Clique ou solte uma imagem aqui</strong>
+            <span>JPG, PNG ou WebP · até 15 MB</span>
+          </label>
+          <div class="file-info" id="file-info" hidden>
+            <span class="file-thumbnail" aria-hidden="true">▧</span>
+            <div><strong id="file-name"></strong><small id="file-details"></small></div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="section-heading"><span class="step">02</span><h2>Enquadramento</h2></div>
+          <div class="field"><label for="ratio">Proporção / resolução</label>
+            <select id="ratio">
+              <option value="16:9">16:9 — Horizontal · 1920×1080</option>
+              <option value="9:16">9:16 — Vertical · 1080×1920</option>
+              <option value="1:1">1:1 — Quadrado · 1080×1080</option>
+              <option value="4:5">4:5 — Post vertical · 1080×1350</option>
+              <option value="3:4">3:4 — Retrato · 1080×1440</option>
+              <option value="original">Proporção original</option>
+            </select>
+          </div>
+          <div class="field"><label for="mode">Modo de ajuste</label>
+            <select id="mode">
+              <option value="crop">Preencher — recortar pelo centro</option>
+              <option value="contain">Encaixar — mostrar imagem inteira</option>
+            </select>
+            <small id="mode-help" class="field-hint">Preenche o quadro e recorta o excesso nas bordas, sem distorcer.</small>
+          </div>
+          <div class="field" id="background-field">
+            <label for="background">Cor das margens <span class="field-note">(modo encaixar)</span></label>
+            <div class="color-control"><input type="color" id="background" value="#101725" disabled><span id="background-value">#101725</span></div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="section-heading"><span class="step">03</span><h2>Exportação</h2></div>
+          <div class="field"><label for="format">Formato do arquivo</label>
+            <select id="format"><option value="image/webp">WebP — ideal para sites</option><option value="image/jpeg">JPG — compatibilidade</option><option value="image/png">PNG — sem perdas</option></select>
+          </div>
+          <div class="field"><div class="label-line"><label for="quality">Qualidade da compressão</label><output id="quality-value" for="quality">85%</output></div>
+            <input id="quality" type="range" min="40" max="100" step="5" value="85">
+            <small id="quality-hint" class="field-hint">Para JPG e WebP. PNG não usa este controle.</small>
+          </div>
+          <button id="download" class="button button-primary" disabled>↓ Baixar imagem</button>
+          <button id="reset" class="button button-secondary" disabled>Restaurar configurações</button>
+        </section>
+      </aside>
+      <section class="editor-area" aria-label="Pré-visualização">
+        <div class="editor-header"><div><p class="mini-label">ÁREA DE TRABALHO</p><h2>Pré-visualização</h2></div><span class="preview-dimensions" id="output-size">1920 × 1080 px</span></div>
+        <div class="preview-grid" id="preview-grid">
+          <div class="preview-card"><div class="preview-title"><span>Original</span><span id="original-tag">—</span></div>
+            <div class="preview-stage" id="original-stage"><div class="empty-preview" id="original-empty"><span aria-hidden="true" class="empty-icon">▧</span><span>Adicione uma imagem para começar</span></div><img id="original-image" alt="Imagem original enviada" hidden></div>
+          </div>
+          <div class="preview-card"><div class="preview-title"><span>Resultado</span><span id="result-tag">16:9</span></div>
+            <div class="preview-stage" id="result-stage"><div class="empty-preview" id="result-empty"><span aria-hidden="true" class="empty-icon">▣</span><span>A prévia aparece aqui</span></div><canvas id="canvas" aria-label="Prévia da imagem processada" hidden></canvas></div>
+          </div>
+        </div>
+        <div class="editor-footer"><span id="status" role="status" aria-live="polite">Aguardando sua primeira imagem.</span><span>As imagens não saem do seu dispositivo.</span></div>
+        <div class="hint-box"><span aria-hidden="true">✦</span><p><strong>Este é o MVP.</strong> O recorte é centralizado automaticamente. Reposicionamento manual, filtros e IA serão adicionados em versões posteriores.</p></div>
+      </section>
+    </div>
+  </main>
+  <footer class="footer shell"><span>EditPic © 2026 · v0.1.0</span><span>Feito com HTML, CSS, JavaScript e Canvas.</span></footer>
+</body>
+</html>
